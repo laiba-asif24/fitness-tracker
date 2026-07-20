@@ -1,21 +1,15 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { Schema } = mongoose;
 
-const UserSchema = new Schema(
+const UserSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-    },
+    name: { type: String, required: [true, 'Name is required'], trim: true },
     username: {
       type: String,
       required: [true, 'Username is required'],
       unique: true,
       trim: true,
       lowercase: true,
-      minlength: 3,
     },
     email: {
       type: String,
@@ -23,74 +17,40 @@ const UserSchema = new Schema(
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
+      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
     },
     password: {
       type: String,
       required: [true, 'Password is required'],
       minlength: 6,
-      select: false, // never return password by default in queries
+      select: false, // never return password by default
     },
-    profilePicture: {
-      type: String, // URL / path to uploaded image
-      default: '',
-    },
-    bio: {
-      type: String,
-      maxlength: 300,
-      default: '',
-    },
+    profilePicture: { type: String, default: '' },
+    bio: { type: String, default: '', maxlength: 300 },
     preferences: {
-      units: {
-        type: String,
-        enum: ['metric', 'imperial'],
-        default: 'metric',
-      },
-      theme: {
-        type: String,
-        enum: ['light', 'dark'],
-        default: 'light',
-      },
-      notificationsEnabled: {
-        type: Boolean,
-        default: true,
-      },
+      units: { type: String, enum: ['metric', 'imperial'], default: 'metric' },
+      theme: { type: String, enum: ['light', 'dark'], default: 'light' },
+      notificationsEnabled: { type: Boolean, default: true },
     },
-    role: {
-      type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
-    },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
   },
-  { timestamps: true } // adds createdAt & updatedAt
+  { timestamps: true }
 );
 
-// Note: `unique: true` on the username/email fields above already creates
-// the necessary unique indexes — no need to declare them again here.
-
-// Hash password before saving (only if it was modified/new)
+// Hash password before saving (only if it was modified)
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-// Instance method to compare a plaintext password against the hash
-UserSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
+// Instance method to compare entered password with hashed password
+UserSchema.methods.matchPassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
 };
 
-// Strip password out of any JSON response as an extra safety net
-UserSchema.methods.toJSON = function () {
-  const obj = this.toObject();
-  delete obj.password;
-  return obj;
-};
+// Text index for search
+UserSchema.index({ name: 'text', username: 'text' });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -1,33 +1,21 @@
 const mongoose = require('mongoose');
-const { Schema } = mongoose;
 
-const ReportSchema = new Schema(
+const ReportSchema = new mongoose.Schema(
   {
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: true,
-      index: true,
-    },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     reportType: {
       type: String,
       enum: ['progress', 'nutrition', 'workout_summary'],
       required: true,
     },
-    format: {
-      type: String,
-      enum: ['pdf', 'csv'],
-      required: true,
-    },
+    format: { type: String, enum: ['pdf', 'csv'], required: true },
     dateRange: {
       from: { type: Date, required: true },
       to: { type: Date, required: true },
     },
-    fileUrl: {
-      type: String, // generated file path/link (pdfkit / json2csv output)
-    },
+    fileUrl: { type: String, required: true },
   },
-  { timestamps: { createdAt: true, updatedAt: false } } // spec only calls for createdAt
+  { timestamps: { createdAt: true, updatedAt: false } }
 );
 
 ReportSchema.index({ user: 1, createdAt: -1 });
