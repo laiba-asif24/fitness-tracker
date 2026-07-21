@@ -2,6 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const Workout = require('../models/Workout');
 
+// @desc    Create a new workout
+// @route   POST /api/workouts
+// @access  Private
 const createWorkout = asyncHandler(async (req, res) => {
   const { title, category, tags, exercises, notes, duration, date } = req.body;
 
@@ -20,6 +23,10 @@ const createWorkout = asyncHandler(async (req, res) => {
 
   res.status(201).json({ success: true, data: workout });
 });
+
+// @desc    Get all workouts for logged-in user (supports category/tag/date filtering & pagination)
+// @route   GET /api/workouts
+// @access  Private
 const getWorkouts = asyncHandler(async (req, res) => {
   const { category, tag, from, to, page = 1, limit = 10, search } = req.query;
 
@@ -49,11 +56,19 @@ const getWorkouts = asyncHandler(async (req, res) => {
     data: workouts,
   });
 });
+
+// @desc    Get single workout by id
+// @route   GET /api/workouts/:id
+// @access  Private
 const getWorkoutById = asyncHandler(async (req, res) => {
   const workout = await Workout.findOne({ _id: req.params.id, user: req.user._id });
   if (!workout) throw new ApiError(404, 'Workout not found');
   res.status(200).json({ success: true, data: workout });
 });
+
+// @desc    Update a workout
+// @route   PUT /api/workouts/:id
+// @access  Private
 const updateWorkout = asyncHandler(async (req, res) => {
   let workout = await Workout.findOne({ _id: req.params.id, user: req.user._id });
   if (!workout) throw new ApiError(404, 'Workout not found');
@@ -76,6 +91,10 @@ const deleteWorkout = asyncHandler(async (req, res) => {
   await workout.deleteOne();
   res.status(200).json({ success: true, message: 'Workout deleted successfully' });
 });
+
+// @desc    Add an exercise to an existing workout
+// @route   POST /api/workouts/:id/exercises
+// @access  Private
 const addExercise = asyncHandler(async (req, res) => {
   const workout = await Workout.findOne({ _id: req.params.id, user: req.user._id });
   if (!workout) throw new ApiError(404, 'Workout not found');
@@ -85,6 +104,10 @@ const addExercise = asyncHandler(async (req, res) => {
 
   res.status(201).json({ success: true, data: workout });
 });
+
+// @desc    Remove an exercise from a workout
+// @route   DELETE /api/workouts/:id/exercises/:exerciseId
+// @access  Private
 const removeExercise = asyncHandler(async (req, res) => {
   const workout = await Workout.findOne({ _id: req.params.id, user: req.user._id });
   if (!workout) throw new ApiError(404, 'Workout not found');

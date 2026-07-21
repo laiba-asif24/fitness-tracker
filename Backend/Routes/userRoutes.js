@@ -12,7 +12,8 @@ const { protect, authorize } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-router.use(protect); 
+router.use(protect); // all routes below require authentication
+
 router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.put('/settings', updateSettings);

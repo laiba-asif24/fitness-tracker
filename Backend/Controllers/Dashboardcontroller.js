@@ -4,6 +4,9 @@ const NutritionLog = require('../models/NutritionLog');
 const ProgressLog = require('../models/ProgressLog');
 const Notification = require('../models/Notification');
 
+// @desc    Get dashboard overview: recent workouts, nutrition, progress, unread notifications
+// @route   GET /api/dashboard
+// @access  Private
 const getDashboard = asyncHandler(async (req, res) => {
   const userId = req.user._id;
 

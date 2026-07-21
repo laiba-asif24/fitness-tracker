@@ -2,6 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const Notification = require('../models/Notification');
 
+// @desc    Create a notification (typically called internally by other services, or by admin)
+// @route   POST /api/notifications
+// @access  Private
 const createNotification = asyncHandler(async (req, res) => {
   const { type, message, scheduledFor, user } = req.body;
 
@@ -17,6 +20,9 @@ const createNotification = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: notification });
 });
 
+// @desc    Get all notifications for logged-in user
+// @route   GET /api/notifications
+// @access  Private
 const getNotifications = asyncHandler(async (req, res) => {
   const { isRead, page = 1, limit = 20 } = req.query;
 
@@ -40,7 +46,9 @@ const getNotifications = asyncHandler(async (req, res) => {
   });
 });
 
-
+// @desc    Mark a notification as read
+// @route   PATCH /api/notifications/:id/read
+// @access  Private
 const markAsRead = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({ _id: req.params.id, user: req.user._id });
   if (!notification) throw new ApiError(404, 'Notification not found');
@@ -51,11 +59,17 @@ const markAsRead = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: notification });
 });
 
+// @desc    Mark all notifications as read
+// @route   PATCH /api/notifications/read-all
+// @access  Private
 const markAllAsRead = asyncHandler(async (req, res) => {
   await Notification.updateMany({ user: req.user._id, isRead: false }, { isRead: true });
   res.status(200).json({ success: true, message: 'All notifications marked as read' });
 });
 
+// @desc    Delete a notification
+// @route   DELETE /api/notifications/:id
+// @access  Private
 const deleteNotification = asyncHandler(async (req, res) => {
   const notification = await Notification.findOne({ _id: req.params.id, user: req.user._id });
   if (!notification) throw new ApiError(404, 'Notification not found');

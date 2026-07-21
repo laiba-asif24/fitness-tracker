@@ -32,6 +32,10 @@ const fetchReportData = async (userId, reportType, from, to) => {
       throw new ApiError(400, 'Invalid reportType');
   }
 };
+
+// @desc    Generate and save a report (PDF or CSV) for progress/nutrition/workout_summary
+// @route   POST /api/reports
+// @access  Private
 const generateReport = asyncHandler(async (req, res) => {
   const { reportType, format, from, to } = req.body;
 
@@ -86,6 +90,10 @@ const getReports = asyncHandler(async (req, res) => {
   const reports = await Report.find({ user: req.user._id }).sort({ createdAt: -1 });
   res.status(200).json({ success: true, count: reports.length, data: reports });
 });
+
+// @desc    Delete a report record (and its file)
+// @route   DELETE /api/reports/:id
+// @access  Private
 const deleteReport = asyncHandler(async (req, res) => {
   const report = await Report.findOne({ _id: req.params.id, user: req.user._id });
   if (!report) throw new ApiError(404, 'Report not found');

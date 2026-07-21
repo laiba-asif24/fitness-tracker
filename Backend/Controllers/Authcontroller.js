@@ -1,9 +1,7 @@
-
 const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const generateToken = require('../utils/generateToken');
 const User = require('../models/User');
-
 const registerUser = asyncHandler(async (req, res) => {
   const { name, username, email, password } = req.body;
 
@@ -30,7 +28,6 @@ const registerUser = asyncHandler(async (req, res) => {
     },
   });
 });
-
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -55,7 +52,6 @@ const loginUser = asyncHandler(async (req, res) => {
     },
   });
 });
-
 const getMe = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: req.user });
 });

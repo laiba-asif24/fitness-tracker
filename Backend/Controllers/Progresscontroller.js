@@ -2,7 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const ProgressLog = require('../models/ProgressLog');
 
-
+// @desc    Create a progress log entry
+// @route   POST /api/progress
+// @access  Private
 const createProgressLog = asyncHandler(async (req, res) => {
   const { date, weight, bodyMeasurements, performanceMetrics, photoUrl } = req.body;
 
@@ -18,7 +20,9 @@ const createProgressLog = asyncHandler(async (req, res) => {
   res.status(201).json({ success: true, data: log });
 });
 
-
+// @desc    Get all progress logs for logged-in user
+// @route   GET /api/progress
+// @access  Private
 const getProgressLogs = asyncHandler(async (req, res) => {
   const { from, to, page = 1, limit = 20 } = req.query;
 
@@ -46,12 +50,18 @@ const getProgressLogs = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc    Get single progress log
+// @route   GET /api/progress/:id
+// @access  Private
 const getProgressLogById = asyncHandler(async (req, res) => {
   const log = await ProgressLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Progress log not found');
   res.status(200).json({ success: true, data: log });
 });
 
+// @desc    Update a progress log
+// @route   PUT /api/progress/:id
+// @access  Private
 const updateProgressLog = asyncHandler(async (req, res) => {
   let log = await ProgressLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Progress log not found');
@@ -64,6 +74,9 @@ const updateProgressLog = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: log });
 });
 
+// @desc    Delete a progress log
+// @route   DELETE /api/progress/:id
+// @access  Private
 const deleteProgressLog = asyncHandler(async (req, res) => {
   const log = await ProgressLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Progress log not found');
@@ -72,6 +85,9 @@ const deleteProgressLog = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Progress log deleted successfully' });
 });
 
+// @desc    Get time-series data for charts (weight trend, etc.)
+// @route   GET /api/progress/chart-data?metric=weight&from=&to=
+// @access  Private
 const getChartData = asyncHandler(async (req, res) => {
   const { from, to } = req.query;
 

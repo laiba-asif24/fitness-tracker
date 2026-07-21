@@ -2,6 +2,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const NutritionLog = require('../models/NutritionLog');
 
+// @desc    Create a nutrition log entry
+// @route   POST /api/nutrition
+// @access  Private
 const createNutritionLog = asyncHandler(async (req, res) => {
   const { date, mealType, items } = req.body;
 
@@ -16,6 +19,10 @@ const createNutritionLog = asyncHandler(async (req, res) => {
 
   res.status(201).json({ success: true, data: log });
 });
+
+// @desc    Get nutrition logs for logged-in user (filter by date range/mealType)
+// @route   GET /api/nutrition
+// @access  Private
 const getNutritionLogs = asyncHandler(async (req, res) => {
   const { mealType, from, to, page = 1, limit = 10 } = req.query;
 
@@ -44,13 +51,18 @@ const getNutritionLogs = asyncHandler(async (req, res) => {
   });
 });
 
-
+// @desc    Get single nutrition log
+// @route   GET /api/nutrition/:id
+// @access  Private
 const getNutritionLogById = asyncHandler(async (req, res) => {
   const log = await NutritionLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Nutrition log not found');
   res.status(200).json({ success: true, data: log });
 });
 
+// @desc    Update a nutrition log
+// @route   PUT /api/nutrition/:id
+// @access  Private
 const updateNutritionLog = asyncHandler(async (req, res) => {
   let log = await NutritionLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Nutrition log not found');
@@ -62,6 +74,9 @@ const updateNutritionLog = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: log });
 });
 
+// @desc    Delete a nutrition log
+// @route   DELETE /api/nutrition/:id
+// @access  Private
 const deleteNutritionLog = asyncHandler(async (req, res) => {
   const log = await NutritionLog.findOne({ _id: req.params.id, user: req.user._id });
   if (!log) throw new ApiError(404, 'Nutrition log not found');
@@ -70,6 +85,9 @@ const deleteNutritionLog = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Nutrition log deleted successfully' });
 });
 
+// @desc    Get daily calorie/macro summary (aggregated by day)
+// @route   GET /api/nutrition/summary/daily?from=&to=
+// @access  Private
 const getDailySummary = asyncHandler(async (req, res) => {
   const { from, to } = req.query;
 
