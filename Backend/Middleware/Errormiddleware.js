@@ -1,12 +1,9 @@
 const ApiError = require('../utils/ApiError');
-
-// 404 handler — catches requests to routes that don't exist
 const notFound = (req, res, next) => {
   const error = new ApiError(404, `Route not found - ${req.originalUrl}`);
   next(error);
 };
 
-// Central error handler — formats all thrown errors into a consistent JSON response
 const errorHandler = (err, req, res, next) => {
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
@@ -30,6 +27,16 @@ const errorHandler = (err, req, res, next) => {
     message = Object.values(err.errors)
       .map((val) => val.message)
       .join(', ');
+  }
+
+  // Multer file upload errors
+  if (err.name === 'MulterError') {
+    statusCode = 400;
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      message = 'File too large. Maximum allowed size is 5MB';
+    } else {
+      message = err.message;
+    }
   }
 
   res.status(statusCode).json({

@@ -85,6 +85,22 @@ const deleteProgressLog = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Progress log deleted successfully' });
 });
 
+// @desc    Upload a progress photo for a specific progress log
+// @route   POST /api/progress/:id/photo
+// @access  Private
+const uploadProgressPhoto = asyncHandler(async (req, res) => {
+  if (!req.file) throw new ApiError(400, 'No image file uploaded');
+
+  const log = await ProgressLog.findOne({ _id: req.params.id, user: req.user._id });
+  if (!log) throw new ApiError(404, 'Progress log not found');
+
+  const fileUrl = `/uploads/progress/${req.file.filename}`;
+  log.photoUrl = fileUrl;
+  await log.save();
+
+  res.status(200).json({ success: true, data: { photoUrl: fileUrl } });
+});
+
 // @desc    Get time-series data for charts (weight trend, etc.)
 // @route   GET /api/progress/chart-data?metric=weight&from=&to=
 // @access  Private
@@ -111,5 +127,6 @@ module.exports = {
   getProgressLogById,
   updateProgressLog,
   deleteProgressLog,
+  uploadProgressPhoto,
   getChartData,
 };

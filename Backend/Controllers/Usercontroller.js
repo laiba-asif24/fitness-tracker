@@ -2,17 +2,12 @@ const asyncHandler = require('../utils/asyncHandler');
 const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
 
-// @desc    Get logged-in user's profile
-// @route   GET /api/users/profile
-// @access  Private
+
 const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
   res.status(200).json({ success: true, data: user });
 });
 
-// @desc    Update logged-in user's profile (name, picture, bio)
-// @route   PUT /api/users/profile
-// @access  Private
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, profilePicture, bio } = req.body;
 
@@ -27,9 +22,6 @@ const updateProfile = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: updatedUser });
 });
 
-// @desc    Update user preferences/settings (units, theme, notifications)
-// @route   PUT /api/users/settings
-// @access  Private
 const updateSettings = asyncHandler(async (req, res) => {
   const { units, theme, notificationsEnabled } = req.body;
 
@@ -44,9 +36,20 @@ const updateSettings = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: updatedUser.preferences });
 });
 
-// @desc    Change password
-// @route   PUT /api/users/password
-// @access  Private
+const uploadProfilePicture = asyncHandler(async (req, res) => {
+  if (!req.file) throw new ApiError(400, 'No image file uploaded');
+
+  const user = await User.findById(req.user._id);
+  if (!user) throw new ApiError(404, 'User not found');
+
+  // Path the frontend can use to display/download the image
+  const fileUrl = `/uploads/profile/${req.file.filename}`;
+  user.profilePicture = fileUrl;
+  await user.save();
+
+  res.status(200).json({ success: true, data: { profilePicture: fileUrl } });
+});
+
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
@@ -65,9 +68,6 @@ const changePassword = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, message: 'Password updated successfully' });
 });
 
-// @desc    Search users by name/username (for admin or social features)
-// @route   GET /api/users/search?q=term
-// @access  Private
 const searchUsers = asyncHandler(async (req, res) => {
   const { q } = req.query;
   if (!q) throw new ApiError(400, 'Search query is required');
@@ -78,17 +78,11 @@ const searchUsers = asyncHandler(async (req, res) => {
 
 // ---------------- Admin only ----------------
 
-// @desc    Get all users
-// @route   GET /api/users
-// @access  Private/Admin
 const getAllUsers = asyncHandler(async (req, res) => {
   const users = await User.find();
   res.status(200).json({ success: true, count: users.length, data: users });
 });
 
-// @desc    Delete a user
-// @route   DELETE /api/users/:id
-// @access  Private/Admin
 const deleteUser = asyncHandler(async (req, res) => {
   const user = await User.findById(req.params.id);
   if (!user) throw new ApiError(404, 'User not found');
@@ -100,6 +94,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 module.exports = {
   getProfile,
   updateProfile,
+  uploadProfilePicture,
   updateSettings,
   changePassword,
   searchUsers,
