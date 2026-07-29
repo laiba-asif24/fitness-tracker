@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-line;
+  }
+  body {
+    @apply bg-paper text-ink;
+  }
+  ::selection {
+    @apply bg-pulse/20;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-card bg-ink px-5 py-3 font-body font-semibold text-paper transition hover:bg-pulse focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pulse disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-card border border-line bg-surface px-5 py-3 font-body font-semibold text-ink transition hover:border-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pulse;
+  }
+  .input-field {
+    @apply w-full rounded-card border border-line bg-surface px-4 py-3 font-body text-ink placeholder:text-slate/60 focus:border-ink focus:outline-none;
+  }
+  .card {
+    @apply rounded-card border border-line bg-surface p-6 shadow-sm;
+  }
+  .label-eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.18em] text-slate;
+  }
+}
+
+@layer utilities {
+  .marquee-track {
+    animation: marquee 28s linear infinite;
+  }
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .loader-pulse {
+    animation: loaderPulse 1.1s ease-in-out infinite;
+  }
+  @keyframes loaderPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.15); opacity: 0.6; }
+  }
+
+  .fade-up {
+    animation: fadeUp 0.7s ease-out both;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track, .loader-pulse, .fade-up {
+      animation: none !important;
+    }
+  }
+}
